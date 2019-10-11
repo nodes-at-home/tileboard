@@ -56,6 +56,8 @@ var weather_icon_map = {
 	'windy-variant': 'flurries',
 };
 
+var token = "put the long-lived token here";
+
 var CONFIG = {
 	
 	customTheme: null, // CUSTOM_THEMES.TRANSPARENT, CUSTOM_THEMES.MATERIAL, CUSTOM_THEMES.MOBILE, CUSTOM_THEMES.COMPACT, CUSTOM_THEMES.HOMEKIT, CUSTOM_THEMES.WINPHONE, CUSTOM_THEMES.WIN95
@@ -65,7 +67,8 @@ var CONFIG = {
 	tileMargin: 6,
 	serverUrl: "http://" + location.hostname + ":8123",
 	wsUrl: "ws://" + location.hostname + ":8123/api/websocket",
-	authToken: null, // optional long-lived token (CAUTION: only if TileBoard is not exposed to the internet)
+	// optional long-lived token (CAUTION: only if TileBoard is not exposed to the internet)
+	authToken: token,
 	//googleApiKey: "XXXXXXXXXX", // Required if you are using Google Maps for device tracker
 	//mapboxToken: "XXXXXXXXXX", // Required if you are using Mapbox for device tracker
 	debug: false, // Prints entities and state change info to the console.
