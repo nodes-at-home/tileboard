@@ -1,1 +1,0 @@
-var token = "put the long-lived token here";
