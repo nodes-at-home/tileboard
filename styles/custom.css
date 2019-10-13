@@ -12,3 +12,12 @@
 .weather-list--primary {
 	text-align: right;
 }
+
+@keyframes pulse {
+  0%, 100% {
+    background-color: yellow;
+  }
+  50% {
+    background-color: red;
+  }
+}

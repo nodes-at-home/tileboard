@@ -56,8 +56,6 @@ var weather_icon_map = {
 	'windy-variant': 'flurries',
 };
 
-var token = "put the long-lived token here";
-
 var CONFIG = {
 	
 	customTheme: null, // CUSTOM_THEMES.TRANSPARENT, CUSTOM_THEMES.MATERIAL, CUSTOM_THEMES.MOBILE, CUSTOM_THEMES.COMPACT, CUSTOM_THEMES.HOMEKIT, CUSTOM_THEMES.WINPHONE, CUSTOM_THEMES.WIN95
@@ -175,6 +173,20 @@ var CONFIG = {
 							states: {
 								open: 'Offen',
 								closed: 'Geschlossen'
+							},
+							customStyles: function ( item, entity ) {
+								if ( this.parseFieldValue ( '&cover.relay_garage.state' ) == 'closed' ) {
+									return {
+										'background-color': 'green',
+									}
+								}
+								else {
+									return {
+										'animation-name': 'pulse',
+										'animation-duration': '1.5s',
+										'animation-iteration-count': 'infinite'
+									}
+								}
 							}
 						},
 						{
