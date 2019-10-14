@@ -170,12 +170,13 @@ var CONFIG = {
 							type: TYPES.COVER,
 							title: 'Garagentor',
 							id: 'cover.relay_garage',
+							state: '&sensor.relay_garage_state.state',
 							states: {
 								open: 'Offen',
 								closed: 'Geschlossen'
 							},
 							customStyles: function ( item, entity ) {
-								if ( this.parseFieldValue ( '&cover.relay_garage.state' ) == 'closed' ) {
+								if ( this.parseFieldValue ( '&sensor.relay_garage_state.state' ) == 'closed' ) {
 									return {
 										'animation-name': 'none',
 										'background-color': 'green',
