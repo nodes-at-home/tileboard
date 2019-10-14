@@ -177,6 +177,7 @@ var CONFIG = {
 							customStyles: function ( item, entity ) {
 								if ( this.parseFieldValue ( '&cover.relay_garage.state' ) == 'closed' ) {
 									return {
+										'animation-name': 'none',
 										'background-color': 'green',
 									}
 								}
