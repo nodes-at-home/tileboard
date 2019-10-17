@@ -56,6 +56,15 @@ var weather_icon_map = {
 	'windy-variant': 'flurries',
 };
 
+var garage_state_map = {
+	'open': 'offen',
+	'closed': 'geschlossen',
+	'up': 'aufwärts',
+	'down': 'abwärts',
+	'stopped': 'angehalten',
+	'moving': 'in Bewegung'
+};
+
 var CONFIG = {
 	
 	customTheme: null, // CUSTOM_THEMES.TRANSPARENT, CUSTOM_THEMES.MATERIAL, CUSTOM_THEMES.MOBILE, CUSTOM_THEMES.COMPACT, CUSTOM_THEMES.HOMEKIT, CUSTOM_THEMES.WINPHONE, CUSTOM_THEMES.WIN95
@@ -170,10 +179,8 @@ var CONFIG = {
 							type: TYPES.COVER,
 							title: 'Garagentor',
 							id: 'cover.relay_garage',
-							state: '&sensor.relay_garage_state.state',
-							states: {
-								open: 'Offen',
-								closed: 'Geschlossen'
+							state: function () {
+								return garage_state_map [this.parseFieldValue ( '&sensor.relay_garage_state.state' )];
 							},
 							customStyles: function ( item, entity ) {
 								if ( this.parseFieldValue ( '&sensor.relay_garage_state.state' ) == 'closed' ) {
