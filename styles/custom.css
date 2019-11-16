@@ -1,16 +1,16 @@
 .sbahn-traffic .item-list--value {
-	overflow: visible; /* will not cut off text */
-	white-space: normal; /* will wrap text to the next line */
-	width: 100%; /* will set text width to full width of the tile */
-	text-align: left;
-	font-size: 20px;
+    overflow: visible; /* will not cut off text */
+    white-space: normal; /* will wrap text to the next line */
+    width: 100%; /* will set text width to full width of the tile */
+    text-align: left;
+    font-size: 20px;
 }
 
 .weather-list-header--primary {
-	text-align: right;
+    text-align: right;
 }
 .weather-list--primary {
-	text-align: right;
+    text-align: right;
 }
 
 @keyframes pulse {
@@ -20,4 +20,8 @@
   50% {
     background-color: red;
   }
+}
+
+.vacuum-maintenance .item-list--name {
+    overflow: visible; /* will not cut off text */
 }
