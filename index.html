@@ -12,10 +12,14 @@
 
    <title>TileBoard</title>
 
+   <!-- WebApp configuration -->
+   <link rel="manifest" href="manifest.webmanifest" crossorigin="use-credentials">
+   <!-- legacy tags -->
    <meta name="mobile-web-app-capable" content="yes">
    <!-- iOS Settings -->
    <meta name="apple-mobile-web-app-capable" content="yes">
    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+   <link rel="apple-touch-icon" href="favicon.png">
 
    <link rel="shortcut icon" sizes="16x16 24x24 32x32 48x48 64x64" href="favicon.png">
 
@@ -43,7 +47,6 @@
          'scripts/vendors/color-picker.js',
          'scripts/vendors/angularjs-gauge.js',
 
-         'scripts/models/api.js',
          'scripts/models/noty.js',
          'scripts/app.js',
 
@@ -51,6 +54,7 @@
          'config.js', // <----- NOT config.example.js !!
 
          'scripts/init.js',
+         'scripts/models/api.js',
          'scripts/directives.js',
          'scripts/controllers/main.js',
          'scripts/controllers/noty.js',
@@ -451,7 +455,7 @@
 <script type="text/ng-template" id="tile.html">
    <div ng-style="itemStyles(page, item, entity)" class="item"
         ng-click="entityClick(page, item, entity)"
-        hm-press="entityLongClick($event, page, item, entity)"
+        hm-press="entityLongPress($event, page, item, entity)"
         hm-recognizer-options="{time: 600}"
         ng-if="(entity = getItemEntity(item)) && !isHidden(item, entity)"
         ng-class="itemClasses(item)">

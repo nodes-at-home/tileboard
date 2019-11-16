@@ -1,6 +1,4 @@
-App.controller('Main', ['$scope', '$location', MainController]);
-
-function MainController ($scope, $location) {
+App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $location, Api) {
    if(!window.CONFIG) return;
    
    $scope.pages = CONFIG.pages;
@@ -36,6 +34,10 @@ function MainController ($scope, $location) {
    var popupIframeStyles = {};
 
    $scope.entityClick = function (page, item, entity) {
+      if(typeof item.action === "function") {
+         return callFunction(item.action, [item, entity]);
+      }
+
       switch (item.type) {
          case TYPES.SWITCH:
          case TYPES.LIGHT:
@@ -62,7 +64,6 @@ function MainController ($scope, $location) {
 
          case TYPES.ALARM: return $scope.openAlarm(item, entity);
 
-         case TYPES.CUSTOM: return $scope.customTileAction(item, entity);
          case TYPES.DIMMER_SWITCH: return $scope.dimmerToggle(item, entity);
 
          case TYPES.POPUP_IFRAME: return $scope.openPopupIframe(item, entity);
@@ -71,7 +72,11 @@ function MainController ($scope, $location) {
       }
    };
 
-   $scope.entityLongClick = function ($event, page, item, entity) {
+   $scope.entityLongPress = function ($event, page, item, entity) {
+      if(typeof item.secondaryAction === "function") {
+         return callFunction(item.secondaryAction, [item, entity]);
+      }
+
       switch (item.type) {
          case TYPES.LIGHT: return $scope.openLightSliders(item, entity);
       }
@@ -451,32 +456,26 @@ function MainController ($scope, $location) {
    $scope.entityState = function (item, entity) {
       if(item.state === false) return null;
 
-      var res;
-
-      if(item.state) {
+      if(typeof item.state !== 'undefined') {
          if(typeof item.state === "string") {
             return parseString(item.state, entity);
          }
          else if(typeof item.state === "function") {
-            res = callFunction(item.state, [item, entity]);
-            if(res) return res;
+            return callFunction(item.state, [item, entity]);
+         }
+         else {
+            return item.state;
          }
       }
 
-      if(item.states) {
-         if(typeof item.states === "function") {
-            res = callFunction(item.states, [item, entity]);
-         }
-         else if(typeof item.states === "object") {
-            res = item.states[entity.state] || entity.state;
-         }
-
-         if(res) return res;
+      if(typeof item.states === "function") {
+         return callFunction(item.states, [item, entity]);
+      }
+      else if(typeof item.states === "object") {
+         return item.states[entity.state] || entity.state;
       }
 
-      if(!item.state) return entity.state;
-
-      return item.state;
+      return entity.state;
    };
 
    $scope.entityIcon = function (item, entity) {
@@ -1064,12 +1063,6 @@ function MainController ($scope, $location) {
             entity_id: item.id
          }
       });
-   };
-
-   $scope.customTileAction = function (item, entity) {
-      if(item.action && typeof item.action === "function") {
-         callFunction(item.action, [item, entity]);
-      }
    };
 
    $scope.sendPlayer = function (service, item, entity) {
@@ -2100,4 +2093,4 @@ function MainController ($scope, $location) {
          pingConnection();
       });
    }
-}
+}]);
