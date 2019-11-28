@@ -417,13 +417,44 @@ var CONFIG = {
                             id: {},
                             unit: '%',
                             state: false,
-                            value: '&vacuum.roborock_s6.attributes.battery_level'
+                            value: '&vacuum.roborock_s6_first_floor.attributes.battery_level'
                         },
                         {
-                            position: [2, 0],
-                            height: 2,
+                            classes: ['vacuum-maintenance'],
+                            position: [1, 0],
+                            width: 2,
+                            type: TYPES.TEXT_LIST,
+                            title: "Wartung",
+                            id: {},
+                            state: false,
+                            list: [
+                                {
+                                    title: 'Hauptbürste wechseln in',
+                                    value: '&vacuum.roborock_s6_first_floor.attributes.main_brush_left',
+                                    unit: 'h',
+                                },
+                                {
+                                    title: 'Seitenbürste wechseln in',
+                                    value: '&vacuum.roborock_s6_first_floor.attributes.side_brush_left',
+                                    unit: 'h',
+                                },
+                                {
+                                    title: 'Filter wechseln in',
+                                    value: '&vacuum.roborock_s6_first_floor.attributes.filter_left',
+                                    unit: 'h',
+                                },
+                                {
+                                    title: 'Sensoren reinigen in',
+                                    value: '&vacuum.roborock_s6_first_floor.attributes.sensor_dirty_left',
+                                    unit: 'h',
+                                },
+                            ],
+                        },
+                        {
+                            position: [3, 0],
                             type: TYPES.VACUUM,
-                            id: 'vacuum.roborock_s6',
+                            id: 'vacuum.roborock_s6_first_floor',
+                            title: "Obergeschoss",
                             states: {
                                 docked: 'angedockt',
                                 charging: 'aufladend',
@@ -442,8 +473,17 @@ var CONFIG = {
                             },
                         },
                         {
-                            classes: ['vacuum-maintenance'],
                             position: [0, 1],
+                            type: TYPES.SENSOR,
+                            title: 'Ladestand',
+                            id: {},
+                            unit: '%',
+                            state: false,
+                            value: '&vacuum.roborock_s6_ground_floor.attributes.battery_level'
+                        },
+                        {
+                            classes: ['vacuum-maintenance'],
+                            position: [1, 1],
                             width: 2,
                             type: TYPES.TEXT_LIST,
                             title: "Wartung",
@@ -452,25 +492,47 @@ var CONFIG = {
                             list: [
                                 {
                                     title: 'Hauptbürste wechseln in',
-                                    value: '&vacuum.roborock_s6.attributes.main_brush_left',
+                                    value: '&vacuum.roborock_s6_ground_floor.attributes.main_brush_left',
                                     unit: 'h',
                                 },
                                 {
                                     title: 'Seitenbürste wechseln in',
-                                    value: '&vacuum.roborock_s6.attributes.side_brush_left',
+                                    value: '&vacuum.roborock_s6_ground_floor.attributes.side_brush_left',
                                     unit: 'h',
                                 },
                                 {
                                     title: 'Filter wechseln in',
-                                    value: '&vacuum.roborock_s6.attributes.filter_left',
+                                    value: '&vacuum.roborock_s6_ground_floor.attributes.filter_left',
                                     unit: 'h',
                                 },
                                 {
                                     title: 'Sensoren reinigen in',
-                                    value: '&vacuum.roborock_s6.attributes.sensor_dirty_left',
+                                    value: '&vacuum.roborock_s6_ground_floor.attributes.sensor_dirty_left',
                                     unit: 'h',
                                 },
                             ],
+                        },
+                        {
+                            position: [3, 1],
+                            type: TYPES.VACUUM,
+                            id: 'vacuum.roborock_s6_ground_floor',
+                            title: "Erdgeschoss",
+                            states: {
+                                docked: 'angedockt',
+                                charging: 'aufladend',
+                                cleaning: 'reinigend',
+                                returning: 'zurückkehrend',
+                                idle: 'wartend',
+                                paused: 'pausierend',
+                            },
+                            icons: {
+                                docked: 'mdi-home',
+                                charging: 'mdi-battery-charging',
+                                cleaning: 'mdi-move-resize',
+                                returning: 'mdi-keyboard-return',
+                                idle: 'mdi-dots-horizontal',
+                                paused: 'mdi-pause-circle',
+                            },
                         },
                     ]
                 }
