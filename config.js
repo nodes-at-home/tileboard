@@ -322,6 +322,21 @@ var CONFIG = {
                             colorpicker: true
                         },
                         {
+                            position: [2, 1],
+                            type: TYPES.INPUT_BOOLEAN,
+                            id: 'input_boolean.daily_vacuum',
+                            title: 'Staubsaugen',
+                            subtitle: 'Einstellung',
+                            states: {
+                                on: "On",
+                                off: "Off"
+                            },
+                            icons: {
+                                on: "mdi-robot-vacuum",
+                                off: "mdi-robot-vacuum",
+                            }
+                        },
+                        {
                             position: [3, 0],
                             type: TYPES.SWITCH,
                             id: 'switch.sonoff_k8200_socket',
