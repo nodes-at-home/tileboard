@@ -106,6 +106,9 @@
 .item.-th-camera_thumbnail {
   background-color: #35909d;
 }
+.item.-th-camera_stream {
+  background-color: #35909d;
+}
 .item.-th-scene {
   background-color: #485569;
 }
@@ -352,7 +355,7 @@ body {
   opacity: 0;
   position: absolute;
   top: 0;
-  transition: opacity 0.3s;
+  transition: opacity .3s;
   width: 100%;
 }
 .pages-menu--items {
@@ -504,6 +507,7 @@ body {
 .item.-input_select,
 .item.-camera,
 .item.-camera_thumbnail,
+.item.-camera_stream,
 .item.-alarm,
 .item.-door_entry,
 .item.-popup_iframe,
@@ -530,6 +534,7 @@ body {
 .item.-input_select:active,
 .item.-camera:active,
 .item.-camera_thumbnail:active,
+.item.-camera_stream:active,
 .item.-alarm:active,
 .item.-door_entry:active,
 .item.-popup_iframe:active,
@@ -553,6 +558,7 @@ body {
 .item.-input_select .item-clickable,
 .item.-camera .item-clickable,
 .item.-camera_thumbnail .item-clickable,
+.item.-camera_stream .item-clickable,
 .item.-alarm .item-clickable,
 .item.-door_entry .item-clickable,
 .item.-popup_iframe .item-clickable,
@@ -578,7 +584,8 @@ body {
 }
 .item.-device_tracker .item-title,
 .item.-camera .item-title,
-.item.-camera_thumbnail .item-title {
+.item.-camera_thumbnail .item-title,
+.item.-camera_stream .item-title {
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
   background: rgba(0, 0, 0, 0.15);
   right: auto;
@@ -709,7 +716,7 @@ body {
   right: 6px;
   background: rgba(0, 0, 0, 0.2);
   padding: 1px 6px 2px;
-  font-size: 0.9em;
+  font-size: .9em;
   color: #ffffff;
   border-radius: 1px;
   z-index: 2;
@@ -736,7 +743,7 @@ body {
   margin-top: 15px;
 }
 .item-entity.-with-select .item-entity--icon {
-  font-size: 46.8px;
+  font-size: 46.800000000000004px;
 }
 .item-entity--unit {
   vertical-align: top;
@@ -769,11 +776,11 @@ body {
   max-width: 100%;
   padding: 0 7px;
   white-space: normal;
-  line-height: 26.66666667px;
+  line-height: 26.666666666666668px;
   text-align: left;
 }
 .-big-entity .item-entity--icon {
-  font-size: 67.6px;
+  font-size: 67.60000000000001px;
 }
 .-big-entity .item-entity--value {
   font-size: 44.2px;
@@ -792,7 +799,7 @@ body {
   line-height: 40px;
 }
 .-small-entity .item-entity--value {
-  font-size: 27.2px;
+  font-size: 27.200000000000003px;
 }
 .-small-entity .weather-icon {
   margin: 10px 0 0;
@@ -855,7 +862,7 @@ body {
   line-height: 10px;
 }
 .-micro-entity .item-entity--value {
-  font-size: 27.2px;
+  font-size: 27.200000000000003px;
 }
 .item-triangle {
   position: absolute;
@@ -987,7 +994,8 @@ clock--postfix {
   vertical-align: bottom;
 }
 camera,
-camera-thumbnail {
+camera-thumbnail,
+camera_stream {
   width: 100%;
   height: 100%;
   display: block;
@@ -996,7 +1004,8 @@ camera-thumbnail {
   position: relative;
 }
 camera div,
-camera-thumbnail div {
+camera-thumbnail div,
+camera_stream div {
   position: absolute;
   background-position: center;
   background-repeat: no-repeat;
@@ -1008,7 +1017,8 @@ camera-thumbnail div {
 }
 .camera-popup,
 .door-entry-popup,
-.iframe-popup {
+.iframe-popup,
+.history-popup {
   position: fixed;
   top: 0;
   left: 0;
@@ -1021,7 +1031,8 @@ camera-thumbnail div {
 }
 .camera-popup-container,
 .door-entry-popup-container,
-.iframe-popup-container {
+.iframe-popup-container,
+.history-popup-container {
   background: #111;
   height: 100%;
   width: 100%;
@@ -1029,6 +1040,41 @@ camera-thumbnail div {
   white-space: nowrap;
   position: relative;
   margin: auto;
+}
+.camera-popup-title,
+.door-entry-popup-title,
+.iframe-popup-title,
+.history-popup-title {
+  background: #222;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 20px;
+  height: 50px;
+  line-height: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+  white-space: nowrap;
+}
+.camera-popup-close,
+.door-entry-popup-close,
+.iframe-popup-close,
+.history-popup-close {
+  float: left;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  padding-left: 5px;
+  font-size: 25px;
+  cursor: pointer;
+}
+.camera-popup-close:active,
+.door-entry-popup-close:active,
+.iframe-popup-close:active,
+.history-popup-close:active {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.3);
 }
 .camera-popup--list,
 .door-entry-popup--list,
@@ -1088,27 +1134,41 @@ camera-thumbnail div {
   height: 100%;
   width: 100%;
 }
-.camera-popup--close,
-.door-entry-popup--close,
-.iframe-popup--close {
+.history-popup-container {
+  height: auto;
+  max-height: 100%;
+}
+@media (orientation: landscape) {
+  .history-popup-container {
+    height: 100%;
+  }
+}
+.history-popup-container--canvas::before {
+  content: '';
+  display: block;
+  padding-bottom: calc(75% - 50px);
+}
+.history-popup--placeholder {
   position: absolute;
   text-align: center;
-  right: 15px;
-  top: 15px;
-  color: rgba(255, 255, 255, 0.6);
-  background: rgba(0, 0, 0, 0.2);
-  width: 70px;
-  height: 70px;
-  line-height: 70px;
-  font-size: 50px;
-  z-index: 3;
-  cursor: pointer;
+  top: calc(50% - 10px);
+  width: 100%;
 }
-.camera-popup--close:active,
-.door-entry-popup--close:active,
-.iframe-popup--close:active {
-  color: rgba(255, 255, 255, 0.8);
-  background: rgba(0, 0, 0, 0.3);
+.history-popup--canvas {
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  vertical-align: top;
+  background: #222;
+  padding: 6px;
+}
+@media (orientation: landscape) {
+  .history-popup--canvas {
+    height: calc(100% - 50px);
+  }
 }
 .door-entry-popup--tiles {
   position: absolute;
@@ -1307,8 +1367,8 @@ camera-thumbnail div {
 .datetime-popup-button.-disabled:active {
   background: #444;
 }
-.alarm-popup--close,
-.datetime-popup--close {
+.alarm-popup-close,
+.datetime-popup-close {
   position: absolute;
   text-align: center;
   right: 5px;
@@ -1321,8 +1381,8 @@ camera-thumbnail div {
   z-index: 3;
   cursor: pointer;
 }
-.alarm-popup--close:active,
-.datetime-popup--close:active {
+.alarm-popup-close:active,
+.datetime-popup-close:active {
   color: rgba(255, 255, 255, 0.8);
   background: rgba(0, 0, 0, 0.3);
 }
@@ -1483,12 +1543,6 @@ camera-thumbnail div {
 }
 .weather-list-header {
   opacity: 0.5;
-}
-.weather-list-header--icon {
-  text-align: center;
-}
-.weather-list-header--primary {
-  text-align: left;
 }
 .weather-list-header--secondary {
   text-align: right;

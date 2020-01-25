@@ -13,6 +13,8 @@
 @entityFontSize: 34px;
 @entitySelectFontSize: 21px;
 
+@popupTitleHeight: 50px;
+
 @opacity: 1;
 
 @TRANSPARENT: rgba(84, 92, 102, 0.6);
@@ -51,6 +53,7 @@
 @CLIMATE: rgb(39, 84, 98);
 @CAMERA: rgb(53, 144, 157);
 @CAMERA_THUMBNAIL: rgb(53, 144, 157);
+@CAMERA_STREAM: rgb(53, 144, 157);
 @SCENE: rgb(72, 85, 105);
 @SCENE_L: rgb(98, 113, 136);
 @SLIDER: rgb(89, 90, 139);
@@ -100,6 +103,7 @@
    &.-th-input_datetime {background-color: @INPUT_DATETIME;}
    &.-th-camera {background-color: @CAMERA;}
    &.-th-camera_thumbnail {background-color: @CAMERA_THUMBNAIL;}
+   &.-th-camera_stream {background-color: @CAMERA_STREAM;}
    &.-th-scene {background-color: @SCENE;}
    &.-th-scene.-loading {background-color: @SCENE_L;}
    &.-th-slider {background-color: @SLIDER;}
@@ -577,6 +581,7 @@ body {
    &.-input_select,
    &.-camera,
    &.-camera_thumbnail,
+   &.-camera_stream,
    &.-alarm,
    &.-door_entry,
    &.-popup_iframe,
@@ -622,10 +627,10 @@ body {
 
    &.-device_tracker,
    &.-camera,
-   &.-camera_thumbnail {
+   &.-camera_thumbnail,
+   &.-camera_stream {
       .item-title {
-         text-shadow: /*1px 1px 1px rgba(0,0,0,.2),*/
-                      1px 1px 0 rgba(0,0,0,.2);
+         text-shadow: 1px 1px 0 rgba(0,0,0,.2);
          background: rgba(0,0,0,0.15);
          right: auto;
          line-height: 22px;
@@ -1125,7 +1130,8 @@ body {
 }
 
 camera,
-camera-thumbnail {
+camera-thumbnail,
+camera_stream {
    width: 100%;
    height: 100%;
    display: block;
@@ -1145,7 +1151,10 @@ camera-thumbnail {
    }
 }
 
-.camera-popup, .door-entry-popup, .iframe-popup {
+.camera-popup,
+.door-entry-popup,
+.iframe-popup,
+.history-popup {
    position: fixed;
    top: 0;
    left: 0;
@@ -1165,6 +1174,40 @@ camera-thumbnail {
       position: relative;
       margin: auto;
    }
+
+   &-title {
+      background: #222;
+      color: rgba(255,255,255,.6);
+      font-size: 20px;
+      height: @popupTitleHeight;
+      line-height: @popupTitleHeight;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 10px;
+      white-space: nowrap;
+   }
+
+   &-close {
+      float: left;
+      text-align: center;
+      color: rgba(255,255,255,.6);
+      width: 50px;
+      height: @popupTitleHeight;
+      line-height: @popupTitleHeight;
+      padding-left: 5px;
+      font-size: 25px;
+      cursor: pointer;
+
+      &:active {
+         color: rgba(255,255,255,.8);
+         background: rgba(0,0,0,0.3);
+      }
+   }
+}
+
+.camera-popup,
+.door-entry-popup,
+.iframe-popup {
 
    &--list {
       width: 200px;
@@ -1205,7 +1248,6 @@ camera-thumbnail {
       }
    }
 
-
    &--iframe {
       width: 100%;
       height: 100%;
@@ -1218,24 +1260,47 @@ camera-thumbnail {
          width: 100%;
       }
    }
+}
 
-   &--close {
+.history-popup {
+
+   &-container {
+      height: auto;
+      max-height: 100%;
+
+      @media (orientation: landscape) {
+         height: 100%;
+      }
+
+      &--canvas {
+         &::before {
+            content: '';
+            display: block;
+            padding-bottom: ~'calc(75% - 50px)';
+         }
+      }
+   }
+
+   &--placeholder {
       position: absolute;
       text-align: center;
-      right: 15px;
-      top: 15px;
-      color: rgba(255,255,255,.6);
-      background: rgba(0,0,0,0.2);
-      width: 70px;
-      height: 70px;
-      line-height: 70px;
-      font-size: 50px;
-      z-index: 3;
-      cursor: pointer;
+      top: ~'calc(50% - 10px)';
+      width: 100%;
+   }
 
-      &:active {
-         color: rgba(255,255,255,.8);
-         background: rgba(0,0,0,0.3);
+   &--canvas {
+      box-sizing: border-box;
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+      bottom: 0; 
+      right: 0; 
+      vertical-align: top;
+      background: #222;
+      padding: 6px;
+
+      @media (orientation: landscape) {
+         height: ~'calc(100% - 50px)';
       }
    }
 }
@@ -1423,7 +1488,7 @@ camera-thumbnail {
       }
    }
 
-   &--close {
+   &-close {
       position: absolute;
       text-align: center;
       right: 5px;

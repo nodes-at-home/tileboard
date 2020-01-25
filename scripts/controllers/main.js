@@ -1,7 +1,8 @@
-App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $location, Api) {
+App.controller('Main', ['$scope', '$timeout', '$location', 'Api', function ($scope, $timeout, $location, Api) {
    if(!window.CONFIG) return;
    
    $scope.pages = CONFIG.pages;
+   $scope.pagesContainerStyles = {};
    $scope.TYPES = TYPES;
    $scope.FEATURES = FEATURES;
    $scope.HEADER_ITEMS = HEADER_ITEMS;
@@ -19,6 +20,7 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
    $scope.activeCamera = null;
    $scope.activeDoorEntry = null;
    $scope.activeIframe = null;
+   $scope.activeHistory = null;
 
    $scope.alarmCode = null;
    $scope.activeAlarm = null;
@@ -32,6 +34,7 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
    var activePage = null;
    var cameraList = null;
    var popupIframeStyles = {};
+   var popupHistoryStyles = {};
 
    $scope.entityClick = function (page, item, entity) {
       if(typeof item.action === "function") {
@@ -56,6 +59,7 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
          case TYPES.INPUT_SELECT: return $scope.toggleSelect(item, entity);
 
          case TYPES.CAMERA:
+         case TYPES.CAMERA_STREAM:
          case TYPES.CAMERA_THUMBNAIL: return $scope.openCamera(item, entity);
 
          case TYPES.SCENE: return $scope.callScene(item, entity);
@@ -77,8 +81,15 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
          return callFunction(item.secondaryAction, [item, entity]);
       }
 
+      if (item.history) return $scope.openPopupHistory(item, entity);
+
       switch (item.type) {
          case TYPES.LIGHT: return $scope.openLightSliders(item, entity);
+         default: {
+            if (entity && entity.entity_id) {
+               return $scope.openPopupHistory(item, entity);
+            }
+         }
       }
    };
 
@@ -510,6 +521,14 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
       return getItemFieldValue(field, item, entity);
    };
 
+   $scope.itemCustomHtml = function (item, entity) {
+      if (typeof item.customHtml === 'function') {
+         return callFunction(item.customHtml, [item, entity]);
+      }
+
+      return item.customHtml;
+   };
+
    $scope.entityUnit = function (item, entity) {
       if(!('unit' in item)) {
          return entity.attributes ? entity.attributes.unit_of_measurement : null;
@@ -747,7 +766,7 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
          }
       };
 
-      setTimeout(function () {
+      $timeout(function () {
          item._sliderInited = true;
       }, 50);
 
@@ -778,12 +797,12 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
          }
       };
 
-      setTimeout(function () {
+      $timeout(function () {
          entity.attributes._sliderInited = true;
          slider._sliderInited = true;
       }, 100);
 
-      setTimeout(function () {
+      $timeout(function () {
          entity.attributes._sliderInited = true;
       }, 0);
 
@@ -807,7 +826,7 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
          value: value || 0
       };
 
-      setTimeout(function () {
+      $timeout(function () {
          entity.attributes._sliderInited = true;
       }, 50);
 
@@ -825,10 +844,9 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
 
       if(entity.state !== "on") {
          return $scope.toggleSwitch(item, entity, function () {
-            setTimeout(function () {
+            $timeout(function () {
                if(entity.state === "on") {
                   $scope.openLightSliders(item, entity);
-                  updateView();
                }
             }, 0);
          })
@@ -837,11 +855,9 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
          if(!item.controlsEnabled) {
             item.controlsEnabled = true;
 
-            setTimeout(function () {
+            $timeout(function () {
                item._controlsInited = true;
             }, 50);
-
-            updateView();
          }
       }
    };
@@ -1435,7 +1451,7 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
 
       }
       else {
-         setTimeout(function () {
+         $timeout(function () {
             scrollToActivePage(preventAnimation);
          }, 20);
       }
@@ -1492,16 +1508,151 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
       $scope.activeIframe = null;
    };
 
+   $scope.getPopupHistoryStyles = function () {
+      if(!$scope.activeHistory || !$scope.activeHistory.item.history || !$scope.activeHistory.item.history.styles) return null;
+
+      var entity = $scope.getItemEntity($scope.activeHistory.item);
+
+      var styles = $scope.itemField('history.styles', $scope.activeHistory.item, entity);
+
+      if(!styles) return null;
+
+      for (var k in popupHistoryStyles) delete popupHistoryStyles[k];
+      for (k in styles) popupHistoryStyles[k] = styles[k];
+
+      return popupHistoryStyles;
+   };
+
+   $scope.openPopupHistory = function (item, entity) {
+      $scope.activeHistory = {
+         item: angular.copy(item),
+         isLoading: true,
+         errorText: null
+      };
+
+      var entityId = $scope.itemField('history.entity', item, entity) || entity.entity_id;
+
+      if(!entityId) {
+         $scope.activeHistory.errorText = 'No entity was specified';
+         return;
+      }
+
+      var day = 24 * 60 * 60 * 1000;
+      var startDate = new Date(Date.now() - ($scope.itemField('history.offset', item, entity) || day)).toISOString();
+
+      return Api.getHistory(startDate, entityId)
+         .then(function (data) {
+            $scope.activeHistory.isLoading = false;
+
+            if(data.length === 0) {
+               $scope.activeHistory.errorText = 'No history data found';
+               return;
+            }
+
+            var datasets = [];
+            var datasetOverride = [];
+            var yAxes = [];
+            var seenAxisIds = {};
+
+            data.forEach(function (states) {
+               var firstStateInfo = states[0];
+
+               var dataset = states.map(function (state) {
+                  return { x: new Date(state.last_changed), y: state.state };
+               });
+
+               // Create extra state with current value.
+               dataset.push({
+                  x: Date.now(),
+                  y: $scope.states[firstStateInfo.entity_id].state
+               });
+
+               datasets.push(dataset);
+
+               var seriesName = firstStateInfo.attributes.friendly_name;
+               var seriesUnit = firstStateInfo.attributes.unit_of_measurement;
+
+               // Either categorial or continuous data.
+               var yAxisType = Number.isNaN(parseFloat(dataset[0].y)) ? 'category' : 'linear';
+               var yAxisId = yAxisType + (seriesUnit ? '-' + seriesUnit : '');
+               var createYAxis = false;
+
+               // Create once and reuse same axis for multiple entities using same unit.
+               if(seriesUnit && !(seriesUnit in seenAxisIds)) {
+                  seenAxisIds[seriesUnit] = true;
+                  createYAxis = true;
+               } else if(!seriesUnit) {
+                  createYAxis = true;
+               }
+
+               if(createYAxis) {
+                  var yLabels = null;
+                  // Only non-continuous data needs explicit labels.
+                  if(yAxisType === 'category') {
+                     yLabels = [];
+                     dataset.forEach(function (value) {
+                        if(yLabels.indexOf(value.y) === -1) {
+                           yLabels.push(value.y);
+                        }
+                     });
+                     yLabels.sort().reverse();
+                     // Special handling for labels when there is only one label present in history.
+                     if(yLabels.length === 1) {
+                        // on/off - add the other state so that y axis positioning is consistent.
+                        if(['on', 'off'].indexOf(yLabels[0]) !== -1) {
+                           yLabels = ['on', 'off'];
+                        } else {
+                           // Add dummy states to vertically center the actual state.
+                           yLabels.push('');
+                           yLabels.unshift('');
+                        }
+                     }
+                  }
+
+                  yAxes.push({
+                     type: yAxisType,
+                     labels: yLabels,
+                     id: yAxisId,
+                  });
+               }
+
+               datasetOverride.push({
+                  label: seriesUnit ? (seriesName + ' / ' + seriesUnit) : seriesName,
+                  yAxisID: yAxisId,
+               });
+            });
+
+            // 'index' mode doesn't work well with multiple datasets - revert to default mode.
+            var interactionsMode = datasets.length > 1 ? 'nearest' : 'index';
+
+            $scope.activeHistory.data = datasets;
+            $scope.activeHistory.datasetOverride = datasetOverride;
+            $scope.activeHistory.options = angular.merge({
+               scales: {
+                  yAxes: yAxes
+               },
+               tooltips: {
+                  mode: interactionsMode
+               },
+               hover: {
+                 mode: interactionsMode
+               }
+            }, $scope.itemField('history.options', item, entity));
+         });
+   };
+
+   $scope.closePopupHistory = function () {
+      $scope.activeHistory = null;
+   };
+
    $scope.openDoorEntry = function (item, entity) {
       $scope.activeDoorEntry = item;
 
       if(doorEntryTimeout) clearTimeout(doorEntryTimeout);
 
       if(CONFIG.doorEntryTimeout) {
-         doorEntryTimeout = setTimeout(function () {
+         doorEntryTimeout = $timeout(function () {
             $scope.closeDoorEntry();
-
-            updateView();
          }, CONFIG.doorEntryTimeout * 1000);
       }
    };
@@ -1530,7 +1681,7 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
       $scope.pages.forEach(function (page) {
          (page.groups || []).forEach(function (group) {
             (group.items || []).forEach(function (item) {
-               if([TYPES.CAMERA, TYPES.CAMERA_THUMBNAIL]
+               if([TYPES.CAMERA, TYPES.CAMERA_THUMBNAIL, TYPES.CAMERA_STREAM]
                      .indexOf(item.type) !== -1) {
                   res.push(item);
                }
@@ -1546,28 +1697,26 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
    function scrollToActivePage (preventAnimation) {
       var index = $scope.pages.indexOf(activePage);
       var translate = '-' + (index * 100) + '%';
-
-      var $pages = document.getElementById("pages");
-
-      var transform;
-
-      if(CONFIG.transition === TRANSITIONS.ANIMATED_GPU) {
-         var params = $scope.isMenuOnTheLeft ? [0, translate, 0] : [translate, 0, 0];
-         transform = 'translate3d(' + params.join(',') + ')';
-      }
-      else if(CONFIG.transition === TRANSITIONS.ANIMATED) {
-         var params = $scope.isMenuOnTheLeft ? [0, translate] : [translate, 0];
-         transform = 'translate(' + params.join(',') + ')';
-      }
-
-      $pages.style.transform = transform;
+      $scope.pagesContainerStyles.transform = getTransformCssValue(translate);
 
       if(preventAnimation) {
-         $pages.style.transition = 'none';
+         $scope.pagesContainerStyles.transition = 'none';
 
-         setTimeout(function () {
-            $pages.style.transition = null;
+         $timeout(function () {
+            $scope.pagesContainerStyles.transition = null;
          }, 50);
+      }
+   }
+
+   function getTransformCssValue(translateValue) {
+      if(CONFIG.transition === TRANSITIONS.ANIMATED_GPU) {
+         var params = $scope.isMenuOnTheLeft ? [0, translateValue, 0] : [translateValue, 0, 0];
+         return 'translate3d(' + params.join(',') + ')';
+      }
+
+      if(CONFIG.transition === TRANSITIONS.ANIMATED) {
+         var params = $scope.isMenuOnTheLeft ? [0, translateValue] : [translateValue, 0];
+         return 'translate(' + params.join(',') + ')';
       }
    }
 
@@ -1595,34 +1744,87 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
 
    $scope.isMenuOnTheLeft = CONFIG.menuPosition === MENU_POSITIONS.LEFT;
 
-   $scope.onPageSwipe = function (event) {
-      switch (event.offsetDirection) {
-         case Hammer.DIRECTION_UP:
-         case Hammer.DIRECTION_LEFT:
-            $scope.swipeUp();
-            break;
-         case Hammer.DIRECTION_DOWN:
-         case Hammer.DIRECTION_RIGHT:
-            $scope.swipeDown();
-            break;
+   var hasScrolledDuringPan = false;
+
+   $scope.onPageScroll = function () {
+      // Will disable panning when page starts scrolling.
+      // Is reset from isPanEnabled function on starting to pan.
+      hasScrolledDuringPan = true;
+
+      return true;
+   };
+
+   $scope.isPanEnabled = function (recognizer, event) {
+      if(hasOpenPopup()) {
+         return;
+      }
+
+      // Workaround for touch events - cancel recognition on scroll event.
+      if(event && event.pointerType === 'touch') {
+         if(event.isFirst) {
+            hasScrolledDuringPan = false;
+         }
+
+         return !hasScrolledDuringPan;
+      }
+
+      return true;
+   }
+
+   $scope.onPagePan = function (event) {
+      if(event.eventType & (Hammer.INPUT_END | Hammer.INPUT_CANCEL)) {
+         // Re-enable transitions.
+         $scope.pagesContainerStyles.transition = null;
+
+         if(event.eventType === Hammer.INPUT_CANCEL) {
+            // Reverts any partial scrolling.
+            scrollToActivePage();
+            return;
+         }
+      } else {
+         // Disable transitions.
+         $scope.pagesContainerStyles.transition = 'none';
+      }
+
+      var pageCount = $scope.pages.length;
+      var pageIndex = $scope.pages.indexOf(activePage);
+      var initialOffset = -pageIndex * 100;
+      var viewportDimension = $scope.isMenuOnTheLeft ? window.innerHeight : window.innerWidth;
+      var panDelta = $scope.isMenuOnTheLeft ? event.deltaY : event.deltaX;
+      var panPercentViewport = (panDelta / viewportDimension) * 100;
+      var newOffset = initialOffset + panPercentViewport;
+
+      // If gesture is finished, determine whether page should switch or be rolled back.
+      if(event.isFinal) {
+         var targetPageIndex = pageIndex;
+
+         // Switch to other page if:
+         // - panned 50% of new page onto screen
+         // or
+         // - the velocity of movement was above the threshold (and velocity direction matches delta direction)
+         var velocity = $scope.isMenuOnTheLeft ? event.velocityY : event.velocityX;
+         if(Math.abs(panPercentViewport) >= 50 || (Math.abs(velocity) > .5 && velocity < 0 === panDelta < 0)) {
+            var potentialTargetIndex = targetPageIndex + (newOffset < initialOffset ? 1 : -1);
+            // Set new page index if new index is within range.
+            if(potentialTargetIndex >= 0 && potentialTargetIndex < pageCount) {
+               targetPageIndex = potentialTargetIndex;
+            }
+         }
+
+         $scope.openPage($scope.pages[targetPageIndex]);
+         return;
+      }
+
+      // Check that new offset is within range of pages area.
+      if(newOffset <= 0 && newOffset >= ((pageCount - 1) * -100)) {
+         $scope.pagesContainerStyles.transform = getTransformCssValue(newOffset + '%');
       }
    }
 
-   $scope.swipeUp = function () {
-      var index = $scope.pages.indexOf(activePage);
-
-      if($scope.pages[index + 1]) {
-         $scope.openPage($scope.pages[index + 1]);
-      }
-   };
-
-   $scope.swipeDown = function () {
-      var index = $scope.pages.indexOf(activePage);
-
-      if($scope.pages[index - 1]) {
-         $scope.openPage($scope.pages[index - 1]);
-      }
-   };
+   function hasOpenPopup () {
+      return $scope.activeCamera || $scope.activeDoorEntry || $scope.activeIframe
+         || $scope.activeHistory;
+   }
 
    $scope.toggleSelect = function (item) {
       if($scope.selectOpened(item)) {
@@ -1785,6 +1987,7 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
 
          $scope.ready = true;
          realReadyState = true;
+         callFunction(CONFIG.onReady);
 
          var pageNum = $location.hash();
 
@@ -1804,14 +2007,11 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
       //$scope.ready = false;
 
       //we give a timeout to prevent blinking (if reconnected)
-      setTimeout(function () {
+      $timeout(function () {
          if(realReadyState === false) {
             $scope.ready = false;
-            updateView();
          }
       }, 1000);
-
-      //updateView();
    });
 
    Api.onMessage(function (data) {
@@ -1849,6 +2049,7 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
          states: $scope.states,
          $scope: $scope,
          parseFieldValue: parseFieldValue.bind(this),
+         api: Api,
          apiRequest: apiRequest.bind(this),
       };
    }
@@ -1882,8 +2083,10 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
    }
 
    function getItemFieldValue (field, item, entity) {
-      var value = item[field];
-
+      var value = item;
+      field.split('.').forEach(function (f) {
+         value = (typeof value === 'object') ? value[f] : undefined;
+      });
       return parseFieldValue(value, item, entity);
    }
 
@@ -2008,7 +2211,7 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
    }
 
    function addError (error) {
-       if(!CONFIG.ignoreErrors) Noty.addObject({
+      if(!CONFIG.ignoreErrors) Noty.addObject({
          type: Noty.ERROR,
          title: 'Error',
          message: error,
@@ -2017,12 +2220,15 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
    }
 
    function warnUnknownItem(item) {
-       if(!CONFIG.ignoreErrors) Noty.addObject({
-           type: Noty.WARNING,
-           title: 'Entity not found',
-           message: 'Entity "' + item.id + '" not found',
-           id: item.id
-       });
+      var notyId = item.id + '_not_found';
+      if(!CONFIG.ignoreErrors && !Noty.hasSeenNoteId(notyId)) {
+         Noty.addObject({
+            type: Noty.WARNING,
+            title: 'Entity not found',
+            message: 'Entity "' + item.id + '" not found',
+            id: notyId
+         });
+      }
    }
 
    function debugLog () {
@@ -2057,7 +2263,7 @@ App.controller('Main', ['$scope', '$location', 'Api', function ($scope, $locatio
          if('id' in res) success = true;
       });
 
-      setTimeout(function () {
+      $timeout(function () {
          if(success) return;
 
          realReadyState = false;

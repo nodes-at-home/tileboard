@@ -111,6 +111,44 @@ App.provider('Api', function () {
          return this.socket.send(wsData);
       };
 
+      $Api.prototype.rest = function (requestStub) {
+         var request = angular.copy(requestStub);
+         request.url = toAbsoluteServerURL(request.url);
+         request.headers = request.headers || {};
+         request.headers.Authorization = 'Bearer ' + this._token;
+         return $http(request)
+            .then(function (response) {
+               return response.data;
+            })
+            .catch(function (response) {
+               switch (response.status) {
+                  case 401:
+                     redirectOAuth();
+                  default:
+                     Noty.add(Noty.ERROR, 'Error in REST api', 'Code ' + response.status + ' retrieved for ' + request.url + '.');
+                     return null;
+               }
+            });
+      };
+
+      $Api.prototype.getHistory = function (startDate, filterEntityId, endDate) {
+         var request = {
+            type: 'GET',
+            url: '/api/history/period'
+         };
+         if (startDate) request.url += '/' + startDate;
+         if (endDate) {
+            request.url += '?end_time=' + endDate;
+         } else {
+            request.url += '?end_time=' + new Date(Date.now()).toISOString();
+         }
+         if (filterEntityId) {
+            var entityIds = filterEntityId instanceof Array ? filterEntityId.join(',') : filterEntityId;
+            request.url += '&filter_entity_id=' + entityIds;
+         }
+         return this.rest(request);
+      };
+
       $Api.prototype.subscribeEvents = function (events, callback) {
          var self = this;
          if(events && typeof events === "object") {

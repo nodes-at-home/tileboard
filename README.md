@@ -88,6 +88,12 @@ var CONFIG = {
    
    /* groupsAlign: Align groups HORIZONTALLY (default) or VERTICALLY */
    groupsAlign: GROUP_ALIGNS.HORIZONTALLY,
+
+   /* Called when connected to API and fetched the state.
+    * Can be called multiple times in case of reconnecting.
+    */
+   onReady: function () {},
+
    /* pages: A list of page objects. See documentation on Pages below */
    pages: [],
    /* events: A list of events. See documentation on Events below */
@@ -382,7 +388,17 @@ Tile Object. [Click here for some real-life examples](TILE_EXAMPLES.md)
     * as a function function (item, entity) { return { 'background-color': '#FF0000' } }
     * (optional)
     */
-   customStyles: Object || Function
+   customStyles: Object || Function,
+
+   /* Object containing history settings */
+   history: { // If this is present in a tile, a history popup is created on secondary action
+      entity: 'sensor.temperatur_innen_gefiltert', // Entity ID (or an array of IDs) to render history for. Default: entity id of the tile itself
+      offset: 24*3600*1000*5, // Start point of the history counting from now(). Default: one day
+      options: { elements: {point: {radius: 3}}}, // Chart options. Refer to https://www.chartjs.org/.
+      styles: { border: '1px solid red'}, // Styles to apply to the <div> containng the chart. Default according to main.css
+      classes: 'clock--colon', // Classes to apply to the history popup. Default according to main.css
+   },
+
 }
 ```
 
@@ -392,6 +408,7 @@ Every anonymous function will call with context
    states: {}, // list of current states
    $scope: {}, // angular scope
    parseFieldValue: Function, // parser function (for parsing HA states)
+   api: {}, // The Api service. Refer to Api.js for what it exposes.
    apiRequest: Function // parser function (args: data, callback=func)
 }
 ```
