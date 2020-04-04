@@ -72,8 +72,8 @@ var CONFIG = {
     entitySize: ENTITY_SIZES.NORMAL, //SMALL, NORMAL, BIG are available
     tileSize: 145,
     tileMargin: 6,
-    serverUrl: "http://" + location.hostname + ":8123",
-    wsUrl: "ws://" + location.hostname + ":8123/api/websocket",
+    serverUrl: "https://" + location.hostname + ":8123",
+    wsUrl: "wss://" + location.hostname + ":8123/api/websocket",
     // optional long-lived token (CAUTION: only if TileBoard is not exposed to the internet)
     authToken: token,
     //googleApiKey: "XXXXXXXXXX", // Required if you are using Google Maps for device tracker
