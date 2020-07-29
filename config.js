@@ -176,6 +176,14 @@ var CONFIG = {
                         },
                         {
                             position: [2, 0],
+                            type: TYPES.SENSOR,
+                            title: 'Pooltemperatur',
+                            id: 'sensor.ds18b20_pool_temperature',
+                            unit: '°C',
+                            state: false
+                        },
+                        {
+                            position: [3, 0],
                             type: TYPES.COVER,
                             title: 'Garagentor',
                             id: 'cover.relay_garage',
@@ -196,21 +204,6 @@ var CONFIG = {
                                         'animation-iteration-count': 'infinite'
                                     }
                                 }
-                            }
-                        },
-                        {
-                            position: [3, 0],
-                            type: TYPES.LIGHT,
-                            id: 'light.automatic_indoor_lights',
-                            title: 'Innenlichter',
-                            //subtitle: 'indoor',
-                            states: {
-                                on: "An",
-                                off: "Aus"
-                            },                    
-                            icons: {
-                                on: "mdi-lightbulb-on",
-                                off: "mdi-lightbulb"
                             }
                         },
                         {
@@ -334,6 +327,21 @@ var CONFIG = {
                             icons: {
                                 on: "mdi-robot-vacuum",
                                 off: "mdi-robot-vacuum",
+                            }
+                        },
+                        {
+                            position: [2, 0],
+                            type: TYPES.SWITCH,
+                            id: 'switch.sonoff_pool_socket',
+                            title: 'Pool',
+                            subtitle: 'Garten',
+                            states: {
+                                on: "On",
+                                off: "Off"
+                            },
+                            icons: {
+                                on: "mdi-pool",
+                                off: "mdi-pool",
                             }
                         },
                         {
