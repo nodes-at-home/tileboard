@@ -149,17 +149,17 @@ var CONFIG = {
                             icon: '&weather.openweathermap.state',
                             icons: weather_icon_map,
                             fields: {
-                                summary: '&sensor.owm_condition.state',
-                                temperature: '&sensor.owm_temperature.state',
-                                temperatureUnit: '&sensor.owm_temperature.attributes.unit_of_measurement',
-                                humidity: '&sensor.owm_humidity.state',
-                                humidityUnit: '&sensor.owm_humidity.attributes.unit_of_measurement',
-                                windSpeed: '&sensor.owm_wind_speed.state',
+                                summary: '&sensor.openweathermap_condition.state',
+                                temperature: '&sensor.openweathermap_temperature.state',
+                                temperatureUnit: '&sensor.openweathermap_temperature.attributes.unit_of_measurement',
+                                humidity: '&sensor.openweathermap_humidity.state',
+                                humidityUnit: '&sensor.openweathermap_humidity.attributes.unit_of_measurement',
+                                windSpeed: '&sensor.openweathermap_wind_speed.state',
                                 windSpeedUnit: 'kmh',                               
                                 list: [
                                     'Luftdruck '
-                                    + '&sensor.owm_pressure.state'
-                                    + '&sensor.owm_pressure.attributes.unit_of_measurement'
+                                    + '&sensor.openweathermap_pressure.state'
+                                    + '&sensor.openweathermap_pressure.attributes.unit_of_measurement'
                                     // + '&sensor.owm_condition.state',
                                     // 'code '
                                     // + '&sensor.owm_weather_code.state',
