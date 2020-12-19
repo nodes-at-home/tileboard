@@ -177,8 +177,7 @@ var CONFIG = {
                         {
                             position: [2, 0],
                             type: TYPES.SENSOR,
-                            title: 'Pooltemperatur',
-                            id: 'sensor.ds18b20_pool_temperature',
+                            id: 'sensor.tileboard_temperature_template',
                             unit: '°C',
                             state: false
                         },
