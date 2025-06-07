@@ -138,36 +138,36 @@ var CONFIG = {
                     width: 4,
                     height: 2,
                     items: [
+                        // {
+                        //     position: [0, 0],
+                        //     height: 2,
+                        //     //classes: ['-compact'],
+                        //     type: TYPES.WEATHER,
+                        //     title: 'Wetter',
+                        //     id: 'weather.openweathermap',
+                        //     states: weather_condition_map,
+                        //     icon: '&weather.openweathermap.state',
+                        //     icons: weather_icon_map,
+                        //     fields: {
+                        //         summary: '&sensor.openweathermap_condition.state',
+                        //         temperature: '&sensor.openweathermap_temperature.state',
+                        //         temperatureUnit: '&sensor.openweathermap_temperature.attributes.unit_of_measurement',
+                        //         humidity: '&sensor.openweathermap_humidity.state',
+                        //         humidityUnit: '&sensor.openweathermap_humidity.attributes.unit_of_measurement',
+                        //         windSpeed: '&sensor.openweathermap_wind_speed.state',
+                        //         windSpeedUnit: 'km/h',
+                        //         list: [
+                        //             'Luftdruck '
+                        //             + '&sensor.openweathermap_pressure.state'
+                        //             + '&sensor.openweathermap_pressure.attributes.unit_of_measurement'
+                        //             // + '&sensor.owm_condition.state',
+                        //             // 'code '
+                        //             // + '&sensor.owm_weather_code.state',
+                        //         ]
+                        //     }
+                        // },
                         {
                             position: [0, 0],
-                            height: 2,
-                            //classes: ['-compact'],
-                            type: TYPES.WEATHER,
-                            title: 'Wetter',
-                            id: 'weather.openweathermap',
-                            states: weather_condition_map,
-                            icon: '&weather.openweathermap.state',
-                            icons: weather_icon_map,
-                            fields: {
-                                summary: '&sensor.openweathermap_condition.state',
-                                temperature: '&sensor.openweathermap_temperature.state',
-                                temperatureUnit: '&sensor.openweathermap_temperature.attributes.unit_of_measurement',
-                                humidity: '&sensor.openweathermap_humidity.state',
-                                humidityUnit: '&sensor.openweathermap_humidity.attributes.unit_of_measurement',
-                                windSpeed: '&sensor.openweathermap_wind_speed.state',
-                                windSpeedUnit: 'km/h',
-                                list: [
-                                    'Luftdruck '
-                                    + '&sensor.openweathermap_pressure.state'
-                                    + '&sensor.openweathermap_pressure.attributes.unit_of_measurement'
-                                    // + '&sensor.owm_condition.state',
-                                    // 'code '
-                                    // + '&sensor.owm_weather_code.state',
-                                ]
-                            }
-                        },
-                        {
-                            position: [1, 0],
                             type: TYPES.SENSOR,
                             title: 'Außentemperatur',
                             id: 'sensor.dht22_terrace_temperature',
@@ -175,14 +175,14 @@ var CONFIG = {
                             state: false
                         },
                         {
-                            position: [2, 0],
+                            position: [0, 1],
                             type: TYPES.SENSOR,
                             id: 'sensor.tileboard_temperature_template',
                             unit: '°C',
                             state: false
                         },
                         {
-                            position: [3, 0],
+                            position: [1, 0],
                             type: TYPES.COVER,
                             title: 'Garagentor',
                             id: 'cover.relay_garage',
@@ -223,7 +223,7 @@ var CONFIG = {
                                 }
                         },
                         {
-                            position: [2, 1],
+                            position: [2, 0],
                             type: TYPES.GAUGE,
                             title: 'Solarproduktion',
                             id: 'sensor.total_dc_power',
@@ -255,7 +255,7 @@ var CONFIG = {
                             },
                         },
                         {
-                            position: [3, 1],
+                            position: [2, 1],
                             type: TYPES.SENSOR_ICON,
                             id: 'binary_sensor.battery_state',
                             icons:
@@ -270,22 +270,57 @@ var CONFIG = {
                                         'background-color': entity.attributes.icon_color,
                                     }
                                 }
-                        // },
-                        // {
-                            // classes: ['sbahn-traffic'],
-                            // position: [2, 1],
-                            // width: 2,
-                            // height: 1,
-                            // title: 'S-Bahn',
-                            // id: {}, // since we are binding each list item to different sensor, so we simply use an empty object
-                            // type: TYPES.TEXT_LIST,
-                            // state: false,
-                            // list: [
-                                // { value: ' ' },
-                                // { value: '&sensor.traffic_sbahn_1.state' },
-                                // { value: ' ' },
-                                // { value: '&sensor.traffic_sbahn_2.state' }
-                            // ]
+                        },               
+                        {
+                            position: [3, 0],
+                            type: TYPES.GAUGE,
+                            title: 'Autoladung',
+                            id: 'sensor.wallbox_power',
+                            // value: function ( item, entity ) {
+                                // return entity.state.replace ( ",", "." );
+                            // },
+                            state: '&sensor.wallbox_meter_daily.state &sensor.wallbox_meter_daily.attributes.unit_of_measurement',
+                            settings: {
+                                size: 140,                                                          // Defaults to 50% of either height or width, whichever is smaller
+                                type: 'arch',                                                       // Options are: 'full', 'semi', and 'arch'. Defaults to 'full'
+                                min: 0,                                                             // Defaults to 0
+                                max: 15000,                                                         // Defaults to 100, TODO read input_number.
+                                cap: 'round',                                                       // Options are: 'round', 'butt'. Defaults to 'butt'
+                                thick: 10,                                                           // Defaults to 6
+                                // label: 'Solarproduktion',                                           // Defaults to undefined
+                                append: '@attributes.unit_of_measurement',                          // Defaults to undefined
+                                // prepend: '$',                                                       // Defaults to undefined
+                                duration: 1500,                                                     // Defaults to 1500ms
+                                // thresholds: { 0: { color: 'green'}, 80: { color: 'red' } },         // Defaults to undefined
+                                labelOnly: false,                                                   // Defaults to false
+                                foregroundColor: function ( item, entity ) {
+                                    if ( entity.state > 0 )
+                                        return 'rgba(255, 255, 0, 1)'
+                                    else
+                                        return 'rgba(128, 128, 128, 1)'
+                                },                            // Defaults to rgba(0, 150, 136, 1)
+                                // backgroundColor: 'rgba(0, 0, 0, 0.1)',                              // Defaults to rgba(0, 0, 0, 0.1)
+                                fractionSize: 0,                                                    // Number of decimal places to round the number to. Defaults to current locale formatting
+                            },
+                        },
+                        {
+                            position: [3, 1],
+                            type: TYPES.SENSOR_ICON,
+                            id: 'binary_sensor.wallbox_state',
+                            title: 'Wallbox',
+                            subtitle: '@attributes.text',
+                            icons:
+                                function ( item, entity ) {
+                                    return entity.attributes.icon.replace ( "mdi:", "mdi-" );
+                                },
+                            state: '&sensor.ev6_ev_battery_level.state %',
+                            customStyles:
+                                function ( item, entity ) {
+                                    return {
+                                        'animation-name': 'none',
+                                        'background-color': entity.attributes.icon_color,
+                                    }
+                                }
                         }                 
                     ]
                 }
@@ -380,6 +415,36 @@ var CONFIG = {
                             colorpicker: true
                         },
                         {
+                            position: [1, 1],
+                            type: TYPES.SWITCH,
+                            id: 'switch.shelly_xtool_m1ultra_switch_0',
+                            title: 'XTool M1 Ultra',
+                            subtitle: 'Büro',
+                            states: {
+                                on: "An",
+                                off: "Aus"
+                            },
+                            icons: {
+                                on: "mdi-box-cutter",
+                                off: "mdi-box-cutter",
+                            }
+                        },
+                        {
+                            position: [2, 0],
+                            type: TYPES.SWITCH,
+                            id: 'switch.poolpumpe',
+                            title: 'Pool',
+                            subtitle: 'Garten',
+                            states: {
+                                on: "An",
+                                off: "Aus"
+                            },
+                            icons: {
+                                on: "mdi-pool",
+                                off: "mdi-pool",
+                            }
+                        },
+                        {
                             position: [2, 1],
                             type: TYPES.INPUT_BOOLEAN,
                             id: 'input_boolean.daily_vacuum',
@@ -395,25 +460,10 @@ var CONFIG = {
                             }
                         },
                         {
-                            position: [2, 0],
-                            type: TYPES.SWITCH,
-                            id: 'switch.sonoff_pool_socket',
-                            title: 'Pool',
-                            subtitle: 'Garten',
-                            states: {
-                                on: "An",
-                                off: "Aus"
-                            },
-                            icons: {
-                                on: "mdi-pool",
-                                off: "mdi-pool",
-                            }
-                        },
-                        {
                             position: [3, 0],
                             type: TYPES.SWITCH,
-                            id: 'switch.sonoff_k8200_socket',
-                            title: 'K8200',
+                            id: 'switch.shelly_bambulab_x1c_switch_0',
+                            title: 'Bambulab X1C',
                             subtitle: 'Büro',
                             states: {
                                 on: "An",
@@ -441,189 +491,6 @@ var CONFIG = {
                         },
                     ]
                 },
-            ]
-        },
-        {
-            hidden: false,
-            // title: 'Wettervorhersage',
-            bg: 'images/bg2.png',
-            icon: 'mdi-weather-partly-rainy',
-                styles: {
-                padding: '75px 0px'
-            },
-            groups: [
-                {
-                    //title: '',
-                    width: 4,
-                    height: 2,
-                    items: [
-                        {
-                            position: [0, 0],
-                            type: TYPES.WEATHER_LIST,
-                            width: 4,
-                            height: 2,
-                            title: 'Vorschau',
-                            id: 'weather.openweathermap',
-                            state: false,
-                            icons: weather_icon_map,
-                            hideHeader: false,
-                            dateTitle: "Zeitpunkt",
-                            primaryTitle: "Temperatur",
-                            iconTitle: "Vorhersage",
-                            //secondaryTitle: 'Bedingung',
-                            list: ["x", "x", "x", "x", "x", "x", "x", "x"].map ( function ( v, i ) {
-                                    return { 
-                                        date:       function ( item, entity ) { return formatDate ( entity.attributes.forecast [i].datetime ) }, 
-                                        primary:    function ( item, entity ) { return entity.attributes.forecast [i].temperature.toFixed ( 1 ) + "°C" }, 
-                                        //secondary:    function ( item, entity ) { return weather_condition_map [entity.attributes.forecast [i].condition] },
-                                        icon:       function ( item, entity ) { return entity.attributes.forecast [i].condition },
-                                    };
-                            }),
-                        }
-                    ]
-                },
-            ]
-        },
-        {
-            hidden: true,
-            //title: 'Saugroboter',
-            bg: 'images/bg2.png',
-            icon: 'mdi-robot-vacuum',
-            styles: {
-                padding: '5px 0px'
-            },
-            groups: [
-                {
-                    //title: '',
-                    width: 4,
-                    height: 2,
-                    items: [
-                        {
-                            position: [0, 0],
-                            type: TYPES.SENSOR,
-                            title: 'Ladestand',
-                            id: {},
-                            unit: '%',
-                            state: false,
-                            value: '&vacuum.roborock_s6_first_floor.attributes.battery_level'
-                        },
-                        {
-                            classes: ['vacuum-maintenance'],
-                            position: [1, 0],
-                            width: 2,
-                            type: TYPES.TEXT_LIST,
-                            title: "Wartung",
-                            id: {},
-                            state: false,
-                            list: [
-                                {
-                                    title: 'Hauptbürste wechseln in',
-                                    value: '&vacuum.roborock_s6_first_floor.attributes.main_brush_left',
-                                    unit: 'h',
-                                },
-                                {
-                                    title: 'Seitenbürste wechseln in',
-                                    value: '&vacuum.roborock_s6_first_floor.attributes.side_brush_left',
-                                    unit: 'h',
-                                },
-                                {
-                                    title: 'Filter wechseln in',
-                                    value: '&vacuum.roborock_s6_first_floor.attributes.filter_left',
-                                    unit: 'h',
-                                },
-                                {
-                                    title: 'Sensoren reinigen in',
-                                    value: '&vacuum.roborock_s6_first_floor.attributes.sensor_dirty_left',
-                                    unit: 'h',
-                                },
-                            ],
-                        },
-                        {
-                            position: [3, 0],
-                            type: TYPES.VACUUM,
-                            id: 'vacuum.roborock_s6_first_floor',
-                            title: "Obergeschoss",
-                            states: {
-                                docked: 'angedockt',
-                                charging: 'aufladend',
-                                cleaning: 'reinigend',
-                                returning: 'zurückkehrend',
-                                idle: 'wartend',
-                                paused: 'pausierend',
-                            },
-                            icons: {
-                                docked: 'mdi-home',
-                                charging: 'mdi-battery-charging',
-                                cleaning: 'mdi-move-resize',
-                                returning: 'mdi-keyboard-return',
-                                idle: 'mdi-dots-horizontal',
-                                paused: 'mdi-pause-circle',
-                            },
-                        },
-                        {
-                            position: [0, 1],
-                            type: TYPES.SENSOR,
-                            title: 'Ladestand',
-                            id: {},
-                            unit: '%',
-                            state: false,
-                            value: '&vacuum.roborock_s6_ground_floor.attributes.battery_level'
-                        },
-                        {
-                            classes: ['vacuum-maintenance'],
-                            position: [1, 1],
-                            width: 2,
-                            type: TYPES.TEXT_LIST,
-                            title: "Wartung",
-                            id: {},
-                            state: false,
-                            list: [
-                                {
-                                    title: 'Hauptbürste wechseln in',
-                                    value: '&vacuum.roborock_s6_ground_floor.attributes.main_brush_left',
-                                    unit: 'h',
-                                },
-                                {
-                                    title: 'Seitenbürste wechseln in',
-                                    value: '&vacuum.roborock_s6_ground_floor.attributes.side_brush_left',
-                                    unit: 'h',
-                                },
-                                {
-                                    title: 'Filter wechseln in',
-                                    value: '&vacuum.roborock_s6_ground_floor.attributes.filter_left',
-                                    unit: 'h',
-                                },
-                                {
-                                    title: 'Sensoren reinigen in',
-                                    value: '&vacuum.roborock_s6_ground_floor.attributes.sensor_dirty_left',
-                                    unit: 'h',
-                                },
-                            ],
-                        },
-                        {
-                            position: [3, 1],
-                            type: TYPES.VACUUM,
-                            id: 'vacuum.roborock_s6_ground_floor',
-                            title: "Erdgeschoss",
-                            states: {
-                                docked: 'angedockt',
-                                charging: 'aufladend',
-                                cleaning: 'reinigend',
-                                returning: 'zurückkehrend',
-                                idle: 'wartend',
-                                paused: 'pausierend',
-                            },
-                            icons: {
-                                docked: 'mdi-home',
-                                charging: 'mdi-battery-charging',
-                                cleaning: 'mdi-move-resize',
-                                returning: 'mdi-keyboard-return',
-                                idle: 'mdi-dots-horizontal',
-                                paused: 'mdi-pause-circle',
-                            },
-                        },
-                    ]
-                }
             ]
         }
     ],
