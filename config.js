@@ -249,7 +249,8 @@ var CONFIG = {
                                         return 'rgba(255, 255, 0, 1)'
                                     else
                                         return 'rgba(128, 128, 128, 1)'
-                                },                            // Defaults to rgba(0, 150, 136, 1)
+                                },
+                                // Defaults to rgba(0, 150, 136, 1)
                                 // backgroundColor: 'rgba(0, 0, 0, 0.1)',                              // Defaults to rgba(0, 0, 0, 0.1)
                                 fractionSize: 0,                                                    // Number of decimal places to round the number to. Defaults to current locale formatting
                             },
@@ -309,10 +310,11 @@ var CONFIG = {
                             id: 'binary_sensor.wallbox_state',
                             title: 'Wallbox',
                             subtitle: '@attributes.text',
-                            icons:
-                                function ( item, entity ) {
-                                    return entity.attributes.icon.replace ( "mdi:", "mdi-" );
-                                },
+                            icon: 'mdi-ev-station',
+                            // icons:
+                            //     function ( item, entity ) {
+                            //         return entity.attributes.icon.replace ( "mdi:", "mdi-" );
+                            //     },
                             state: '&sensor.ev6_ev_battery_level.state %',
                             customStyles:
                                 function ( item, entity ) {
@@ -417,7 +419,7 @@ var CONFIG = {
                         {
                             position: [1, 1],
                             type: TYPES.SWITCH,
-                            id: 'switch.shelly_xtool_m1ultra_switch_0',
+                            id: 'switch.shelly_xtool_m1ultra',
                             title: 'XTool M1 Ultra',
                             subtitle: 'Büro',
                             states: {
@@ -435,6 +437,10 @@ var CONFIG = {
                             id: 'switch.poolpumpe',
                             title: 'Pool',
                             subtitle: 'Garten',
+                            hidden:
+                                function ( item, entity ) {
+                                    return entity.state == 'unavailable';
+                                },
                             states: {
                                 on: "An",
                                 off: "Aus"
@@ -462,7 +468,7 @@ var CONFIG = {
                         {
                             position: [3, 0],
                             type: TYPES.SWITCH,
-                            id: 'switch.shelly_bambulab_x1c_switch_0',
+                            id: 'switch.shelly_bambulab_x1c',
                             title: 'Bambulab X1C',
                             subtitle: 'Büro',
                             states: {
