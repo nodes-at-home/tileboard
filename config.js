@@ -178,6 +178,10 @@ var CONFIG = {
                             position: [0, 1],
                             type: TYPES.SENSOR,
                             id: 'sensor.tileboard_temperature_template',
+                            title:
+                                function ( item, entity ) {
+                                    return entity.attributes.text;
+                                },
                             unit: '°C',
                             state: false
                         },
